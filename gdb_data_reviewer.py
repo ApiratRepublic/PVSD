@@ -1,7 +1,7 @@
 # =============================================================================
 # - ตรวจสอบรูปแบบข้อมูลของฟีเจอร์คลาสใน GDB ตามมาตรฐานที่กำหนด
-# - Version 1.0
-# - release date: 2025-10-31
+# - Version 1.1
+# - release date: 2025-11-11
 # - ผู้เขียน: Apirat Rattanapaiboon
 # =============================================================================
 
@@ -18,23 +18,21 @@ from openpyxl import load_workbook
 ###############################################
 #----------------- ที่ตั้งไฟล์
 ###############################################
-ROOT_DIR = r"D:\A02-Projects\WarRoom\GDB"  # ที่รวมไฟล์ GDB
-REPORT_ROOT = r"D:\A02-Projects\WarRoom\Report"  # ที่เก็บรายงานผล
-OVERLAP_ROOT = r"D:\A02-Projects\WarRoom\Overlaping"  # ที่เก็บไฟล์ผลการตรวจสอบทับซ้อน
-SUMMARY_SUMMARY_EXCEL_PATH = os.path.join(REPORT_ROOT,"Summary_Report.xlsx") # ไฟล์สรุปรายงานรวม
+ROOT_DIR = r"D:\A02-Projects\Clinix\Test_GDB"  # ที่รวมไฟล์ GDB
+REPORT_ROOT = r"D:\A02-Projects\Clinix\Report"  # ที่เก็บรายงานผล
+OVERLAP_ROOT = r"D:\A02-Projects\Clinix\Overlaping"  # ที่เก็บไฟล์ผลการตรวจสอบทับซ้อน
+SUMMARY_EXCEL_PATH = os.path.join(REPORT_ROOT,"Summary_Report.xlsx") # ไฟล์สรุปรายงานรวม
+
 # --------------------------------------------
 #   จัดการค่าต่าง ๆ รวมทั้งฟังก์ชัน ตัวแปร ที่ใช้ร่วมกัน
 # --------------------------------------------
 NUMERIC_TYPES = {"SmallInteger", "Integer", "Single", "Double", "Float", "DoubleFloat", "SingleFloat", "OID"}
 
 
-ROAD_LAND_USE_DOMAIN = {
-    "พาณิชยกรรม", "อุตสาหกรรม", "พาณิชยกรรมและที่อยู่อาศัย", "ที่อยู่อาศัย",
-    "ที่อยู่อาศัยและเกษตรกรรม", "ส่วนราชการ", "เกษตรกรรม", "พื้นที่ป่าสงวน", "พื้นที่อุทยาน"
-}
-ROAD_STREET_TYPE_DOMAIN = {
-    "คอนกรีต", "ลาดยาง", "หินคลุก", "ลูกรัง", "ดิน", "น้ำ", "ไม้", "ทางไม่มีสภาพ"
-}
+ROAD_LAND_USE_DOMAIN = {"เกษตรกรรม", "ที่อยู่อาศัย", "พาณิชยกรรม",
+                        "พาณิชยกรรมและที่อยู่อาศัย", "ที่อยู่อาศัยและเกษตรกรรม",
+                        "อุตสาหกรรม", "ส่วนราชการ",  "พื้นที่ป่าสงวน", "พื้นที่อุทยาน"}
+ROAD_STREET_TYPE_DOMAIN = {"คอนกรีต", "ลาดยาง", "หินคลุก", "ลูกรัง", "ดิน", "น้ำ", "ไม้", "ทางไม่มีสภาพ"}
 ROAD_REQ_NAME_TD_CODES = {1, 2, 3, 4, 5, 6, 8}
 REL_TABLE_NO_DOMAIN = {1, 2, 3, 41, 42, 5, 6, 7}
 REL_SUB_TABLE_NO_RANGE = range(0, 7) # 0-6
@@ -68,8 +66,7 @@ def find_gdb_paths(root_dir):
                 found_gdbs.append(d)
 
         # 2. (สำคัญ) ลบ GDB ที่พบออกจาก Dirs
-        # เพื่อ os.walk จะได้ไม่ค้นหา *ข้างใน* GDB นั้นอีก (เจอบางจังหวัดที่มี GDB ซ้อนกัน)
-        # # (ต้องทำใน loop ย้อนกลับ หรือสร้าง list ใหม่ แต่ .remove() ก็ใช้ได้)
+        # เพื่อ os.walk จะได้ไม่ค้นหา *ข้างใน* GDB นั้นอีก (เจอบางจังหวัดที่มี GDB ซ้อนใน GDB)
         for gdb_dir in found_gdbs:
             try:
                 dirs.remove(gdb_dir)
@@ -88,7 +85,7 @@ def get_short_gdb_path(full_gdb_path):
     แปลง full GDB path เป็นรูปแบบย่อ เพื่อจัดการชื่อจังหวัดและ gdb ให้อยู่ในรูป เช่น 49_มุกดาหาร/GDB_49_2
     """
     try:
-        # parent = GDB_49_2
+        # เช่น parent = GDB_49_2
         parent = os.path.basename(os.path.dirname(full_gdb_path))
         # grandparent = 49_มุกดาหาร
         grandparent = os.path.basename(os.path.dirname(os.path.dirname(full_gdb_path)))
@@ -99,7 +96,7 @@ def get_short_gdb_path(full_gdb_path):
     
 def extract_province(gdb_path_str):
     """
-    (ฟังก์ชันใหม่) ดึงชื่อจังหวัดจาก GDB_Path
+    ฟังก์ชันนี้ใช้ดึงชื่อจังหวัดจาก GDB_Path
     ตัวอย่าง: "36-ชัยภูมิ\GDB_36_1" -> "ชัยภูมิ"
     ตัวอย่าง: "49_มุกดาหาร\GDB_49_2" -> "มุกดาหาร"
     ตัวอย่าง: "10_1-กรุงเทพมหานคร1\GDB_10_1" -> "กรุงเทพมหานคร1"
@@ -115,7 +112,7 @@ def extract_province(gdb_path_str):
 
 def categorize_featureclass(fc_name_str):
     """
-    (ฟังก์ชันใหม่) จัดกลุ่ม Featureclass เป็น Category หลัก
+    ฟังก์ชันจัดกลุ่ม Featureclass เป็นประเภทหลัก
     """
     fc = str(fc_name_str).upper()
     if re.match(r"^PARCEL_\d+_\d+$", fc):
@@ -137,7 +134,7 @@ def categorize_featureclass(fc_name_str):
     else:
         return None # ไม่ตรงกับกลุ่มใด
 
-# ฟังก์ชันช่วยอ่านฟิลด์อย่างปลอดภัย
+# ฟังก์ชันช่วยอ่านฟิลด์อย่างปลอดภัยเนื่องจากเจอฟิลด์แปลก ๆ บางตัวที่ทำให้ arcpy.ListFields ล้มเหลว
 def safe_list_fields(fc_path):
     try:
         return {f.name.upper(): f.type for f in arcpy.ListFields(fc_path)}
@@ -175,7 +172,11 @@ def safe_value_is_int_like(val):
 # ฟังก์ชันตรวจสอบทับซ้อน (ทับสนิท)
 ########################################
 
-def check_for_exact_overlaps(fc_path, error_list, output_dir, output_basename, return_layer_path=False, verbose=True):
+def check_for_exact_overlaps(fc_path,
+                             error_list,
+                             output_dir,
+                             output_basename,
+                             return_layer_path=False, verbose=True):
     """
     ตรวจสอบโพลีกอนที่ทับกันสนิท (exact overlap) โดยใช้ arcpy.management.FindIdentical
     ทำงานได้ทั้ง ArcGIS Pro และ ArcMap (รองรับกรณีไม่มี FEAT_SEQ หรือ GROUPID)
@@ -341,7 +342,7 @@ def check_for_exact_overlaps(fc_path, error_list, output_dir, output_basename, r
         # Cleanup
         safe_delete(out_table)
         safe_delete(temp_layer)
-        if verbose: print("      • Cleanup in_memory เสร็จสิ้น\n")
+        if verbose: print("      • ล้างค่า in_memory เสร็จสิ้น\n")
 
 # ----------------------------------------
 # ตรวจสอบประเภทข้อมูลและค่าต่าง ๆ ตามที่กำหนดไว้
@@ -357,7 +358,8 @@ def validate_parcel(fc_path, error_list, basename=None):
     print(f"  กำลังตรวจสอบ PARCEL: {fc_name}")
     fields = safe_list_fields(fc_path)
 
-    required = ["UTMMAP1","UTMMAP2","UTMMAP3","UTMMAP4","UTMSCALE","LAND_NO","PARCEL_TYPE","CHANGWAT_CODE","BRANCH_CODE","PARCEL_RN"]
+    required = ["UTMMAP1","UTMMAP2","UTMMAP3","UTMMAP4","UTMSCALE","LAND_NO",
+                "PARCEL_TYPE","CHANGWAT_CODE","BRANCH_CODE","PARCEL_RN"]
     for f in required:
         if f.upper() not in fields:
             write_error_report(error_list, gdb_path, fc_name, "Field Check", -1, f, "", "ไม่พบฟิลด์นี้")
@@ -454,8 +456,13 @@ def validate_parcel(fc_path, error_list, basename=None):
                     write_error_report(error_list, gdb_path, fc_name, "Conditional Rule", oid, "UTMSCALE", scale, "UTMSCALE ของฟีเจอร์คลาส PARCEL จะต้องเป็น 4000,2000,1000 หรือ 500")
 
                 # 1.1.6.LAND_NO  ต้องเป็น Number (เช็คจากประเภทข้อมูลแล้ว)
-	            # 1.1.7.PARCEL_TYPE ต้องเป็น Number (เช็คจากประเภทข้อมูลแล้ว)
-	            # 1.1.8.CHANGWAT_CODE ต้องเป็น String และเป็น 2 หลัก เช่น "66"
+	            
+                # 1.1.7.PARCEL_TYPE ต้องเป็น Number (เช็คจากประเภทข้อมูลแล้ว)
+                # และต้องไม่เป็น 3                
+                if parcel_type == 3:
+                    write_error_report(error_list, gdb_path, fc_name, "Conditional Rule", oid, "PARCEL_TYPE", parcel_type, "ชั้น PARCEL ไม่ควรมี PARCEL_TYPE เป็น 3 (ควรอยู่ในชั้น NS3K)")
+	                            
+                # 1.1.8.CHANGWAT_CODE ต้องเป็น String และเป็น 2 หลัก เช่น "66"
                 if not (isinstance(cwt,str) and len(cwt)==2 and cwt.isdigit()):
                     write_error_report(error_list, gdb_path, fc_name, "Data Format", oid, "CHANGWAT_CODE", cwt, "CHANGWAT_CODE ต้องเป็น 2 หลัก")
 
@@ -503,7 +510,7 @@ def validate_parcel(fc_path, error_list, basename=None):
 
 
 ################################################
-#-------------2) PARCEL_NS3K
+#----------------2) PARCEL_NS3K
 ################################################
 
 def validate_parcel_ns3k(fc_path, error_list, basename=None):
@@ -628,7 +635,7 @@ def validate_parcel_ns3k(fc_path, error_list, basename=None):
     check_for_exact_overlaps(fc_path, error_list, os.path.join(OVERLAP_ROOT,"PARCEL"), basename or "PARCEL_NS3K")
 
 ################################################
-# ---------------3) ROAD
+# -------------------3) ROAD
 ################################################
 
 def validate_road(fc_path, error_list, basename=None):
@@ -640,7 +647,11 @@ def validate_road(fc_path, error_list, basename=None):
     VALID_STREET_TYPE = ROAD_STREET_TYPE_DOMAIN
     VALID_TD_RP3 = ROAD_REQ_NAME_TD_CODES
 
-    required = ["STREET_NAME","STREET_CODE","STREET_DEPTH","LAND_USE","STREET_TYPE","STREET_WIDTH","STREET_AREA","BRANCH_CODE","PARCEL_TYPE","TD_RP3_TYPE_CODE","STREET_RN","CHANGWAT_CODE","STREET_SMG"]
+    required = ["STREET_NAME","STREET_CODE","STREET_DEPTH",
+                "LAND_USE","STREET_TYPE","STREET_WIDTH","STREET_AREA",
+                "BRANCH_CODE","PARCEL_TYPE",
+                "TD_RP3_TYPE_CODE","STREET_RN",
+                "CHANGWAT_CODE","STREET_SMG"]
     for f in required:
         if f.upper() not in fields:
             write_error_report(error_list, gdb_path, fc_name, "Field Check", -1, f, "", "ไม่พบฟิลด์นี้")
@@ -676,7 +687,10 @@ def validate_road(fc_path, error_list, basename=None):
         write_error_report(error_list, gdb_path, fc_name, "Field Type", -1, "STREET_SMG", fields["STREET_SMG"], "ต้องเป็น String")
 
     
-    chk_fields = [f for f in ["OID@","BRANCH_CODE","CHANGWAT_CODE","PARCEL_TYPE","TD_RP3_TYPE_CODE","STREET_RN","STREET_NAME","STREET_CODE","STREET_TYPE","STREET_DEPTH","LAND_USE","STREET_WIDTH","STREET_AREA","STREET_SMG"] if f=="OID@" or f.upper() in fields]
+    chk_fields = [f for f in ["OID@","BRANCH_CODE","CHANGWAT_CODE",
+                              "PARCEL_TYPE","TD_RP3_TYPE_CODE","STREET_RN","STREET_NAME","STREET_CODE",
+                              "STREET_TYPE","STREET_DEPTH","LAND_USE","STREET_WIDTH",
+                              "STREET_AREA","STREET_SMG"] if f=="OID@" or f.upper() in fields]
     try:
         branch_street_rn_seen = defaultdict(list)
 
@@ -756,7 +770,7 @@ def validate_road(fc_path, error_list, basename=None):
                     else:
                         # --- ทางเลือก 2: STREET_NAME ว่าง ---
                         # (ข้อ 3.1.1 ไม่ต้องตรวจสอบ)
-                        # (ข้อ 3.1.11 ใหม่) TD_RP3_TYPE_CODE ต้องเป็น {0, None} หรือ {1-8}
+                        # (ข้อ 3.1.11) TD_RP3_TYPE_CODE ต้องเป็น {0, None} หรือ {1-8}
                         # สร้าง Set ที่อนุญาต (0, None, 1, 2, 3, 4, 5, 6, 8)
                         ALLOWED_VALUES_WHEN_NAME_IS_EMPTY = {0, None} 
                         ALLOWED_VALUES_WHEN_NAME_IS_EMPTY.update(VALID_TD_RP3) # เพิ่ม {1,2,3...}
@@ -778,6 +792,13 @@ def validate_road(fc_path, error_list, basename=None):
                         f"STREET_NAME ต้องไม่เป็นค่าว่าง เนื่องจาก TD_RP3_TYPE_CODE คือ {td_type_int}"
                     )
 
+                # # 3.2.1.2. ถ้า TD_RP3_TYPE_CODE เป็น 0 หรือ NULL STREET_NAME จะต้องเป็นค่าว่าง เท่านั้น
+                if (td_type_int == 0 or td_type_int is None) and not is_street_name_empty:
+                    write_error_report(error_list, gdb_path, fc_name, "Conditional Rule", oid, "STREET_NAME", name, "TD_RP3_TYPE_CODE เป็น 0 หรือ NULL ดังนั้น STREET_NAME ต้องเป็นค่าว่าง")
+                
+                # 3.2.1.3. ถ้า STREET_NAME เป็นค่าว่าง LAND_USE จะต้องเป็นค่าว่างด้วย
+                if is_street_name_empty and (land_use is not None and str(land_use).strip() != ""):
+                    write_error_report(error_list, gdb_path, fc_name, "Conditional Rule", oid, "LAND_USE", land_use, "STREET_NAME เป็นค่าว่าง ดังนั้น LAND_USE ต้องเป็นค่าว่างด้วย")
 
                 # 3.1.12. STREET_RN ต้องเป็น Number และใน BRANCH_CODE เดียวกัน จะต้องไม่มีค่าซ้ำ
                 if street_rn is None or not can_be_number(street_rn):
@@ -813,7 +834,7 @@ def validate_road(fc_path, error_list, basename=None):
             if len(oids) > 1:
                 branch_str, rn_str = key
                 write_error_report(error_list, gdb_path, fc_name, "Duplicate Value", str(oids), "STREET_RN", rn_str, f"STREET_RN ซ้ำ ภายใน BRANCH_CODE '{branch_str}'")
-
+    
     except Exception as ex:
         write_error_report(error_list, gdb_path, fc_name, "Cursor Error", -1, "", "", str(ex))
     
@@ -873,7 +894,7 @@ def validate_block_fix(fc_path, error_list, basename=None):
                 if not (branch and isinstance(branch,str) and len(branch.strip())==8 and branch.strip().isdigit()):
                     write_error_report(error_list, gdb_path, fc_name, "Data Format", oid, "BRANCH_CODE", branch, "BRANCH_CODE ต้องเป็น 8 หลัก")
                 
-                # LOCK_FIX_RN ต้องเป็น Number และใน BRANCH_CODE เดียวกัน ต้องไม่ซ้ำ
+                # BLOCK_FIX_RN ต้องเป็น Number และใน BRANCH_CODE เดียวกัน ต้องไม่ซ้ำ
                 if rn is None or not can_be_number(rn):
                     write_error_report(error_list, gdb_path, fc_name, "Data Format", oid, "BLOCK_FIX_RN", rn, "ต้องเป็น Number")
                 else:
@@ -899,7 +920,6 @@ def validate_block_fix(fc_path, error_list, basename=None):
             name_to_code_by_branch[branch_key][name] = code
             code_to_name_by_branch[branch_key][code] = name
 
-
     except Exception as ex:
         write_error_report(error_list, gdb_path, fc_name, "Cursor Error", -1, "", "", str(ex))
 
@@ -921,7 +941,7 @@ def validate_block_price(fc_path, error_list, basename=None):
             write_error_report(error_list, gdb_path, fc_name, "Field Check", -1, f, "", "ไม่พบฟิลด์นี้")
 
     #----------------------------------------
-    # --- (ตรวจสอบประเภทข้อมูล) ---
+    # -------- (ตรวจสอบประเภทข้อมูล) -------
     #----------------------------------------
     if "STREET_NAME" in fields and fields["STREET_NAME"] != "String":
         write_error_report(error_list, gdb_path, fc_name, "Field Type", -1, "STREET_NAME", fields["STREET_NAME"], "ต้องเป็น String")
@@ -1232,8 +1252,6 @@ def main():
             grandparent = os.path.basename(os.path.dirname(os.path.dirname(gdb)))
             basename = f"{grandparent}_{parent}"
            
-            #basename = re.sub(r'[\\/*?:"<>|]','_',basename)
-            # (ส่วนการล้าง basename สำหรับ in_memory ... ไม่เปลี่ยนแปลง)
             basename_for_mem = re.sub(r'[^A-Za-z0-9_]', '_', basename)
             if not basename_for_mem[0].isalpha():
                 basename_for_mem = "GDB_" + basename_for_mem
@@ -1244,35 +1262,61 @@ def main():
                 continue
             
             for fc in fcs_and_tables:
-                fc_upper = fc.upper() 
+                fc_upper = fc.upper()
                 for key,meta in validation_map.items():
+                    # 'key' is the category (e.g., "PARCEL", "ROAD")
                     if meta["pattern"].match(fc_upper): 
                         fc_path = os.path.join(gdb, fc)
-                        
+                        print(f"  >> ตรวจสอบ {fc} ด้วย {key} Validator...")
                         # (Sheet 1: นับจำนวน - ยังใช้ gdb path เต็ม)
+                        # # *** สำหรับการนับแบบมีเงื่อนไข ***       
                         try:
-                            count = int(arcpy.management.GetCount(fc_path)[0])
+                            # 1. Get total count (for all types)
+                            total_count = int(arcpy.management.GetCount(fc_path)[0])
                             all_data_records.append([
                                 run_timestamp,
                                 gdb, 
                                 fc,
-                                count
+                                total_count,
+                                key # Add the category (e.g., "PARCEL", "ROAD")
                             ])
+                                
+                            # 2. Get conditional counts if applicable
+                            if key == "PARCEL":
+                                cln_layer = f"in_memory/{basename_for_mem}_parcel_cln"
+                                # Standard: LAND_NO not 0/empty AND PARCEL_TYPE is 1, 4, or 5
+                                where_clause = "(LAND_NO IS NOT NULL AND LAND_NO <> 0) AND PARCEL_TYPE IN (1, 4, 5)"
+                                arcpy.management.MakeFeatureLayer(fc_path, cln_layer, where_clause)
+                                cln_count = int(arcpy.management.GetCount(cln_layer)[0])
+                                arcpy.management.Delete(cln_layer)
+                                all_data_records.append([run_timestamp, gdb, fc, cln_count, "PARCEL_CLN"])
+                            
+                            elif key == "PARCEL_NS3K":
+                                cln_layer = f"in_memory/{basename_for_mem}_ns3k_cln"
+                                # Standard: LAND_NO not 0/empty AND PARCEL_TYPE is 3
+                                where_clause = "(LAND_NO IS NOT NULL AND LAND_NO <> 0) AND PARCEL_TYPE = 3"
+                                arcpy.management.MakeFeatureLayer(fc_path, cln_layer, where_clause)
+                                cln_count = int(arcpy.management.GetCount(cln_layer)[0])
+                                arcpy.management.Delete(cln_layer)
+                                all_data_records.append([run_timestamp, gdb, fc, cln_count, "NS3K_CLN"])                      
+                                  
                         except Exception as e:
-                            print(f"  !! ไม่สามารถนับจำนวน {fc} ได้: {e}")
+                            print(f"  !! ไม่สามารถนับจำนวน (Pivot) {fc} ได้: {e}")
                             all_data_records.append([
                                 run_timestamp,
                                 gdb, 
                                 fc,
-                                "Error"
+                                "Error",
+                                key
                             ])
-                        
+
+
                         # รัน Validator 
                         try:
                             meta["func"](fc_path, gdb_error_list, basename)
                         except Exception as e:
                             write_error_report(gdb_error_list, gdb, fc, "Validator Error", -1, "", "", str(e))
-                        break
+                        break  # Exit the inner loop once matched
             
             # สร้างรายงานถ้ามี Error
             if gdb_error_list:
@@ -1353,18 +1397,50 @@ def main():
             print(f"  Failed processing {gdb}: {e}")
 
     # *** เขียนรายงานสรุป Excel ***
-    print(f"\nกำลังเขียนรายงานสรุป Excel ที่: {SUMMARY_SUMMARY_EXCEL_PATH}")
+    print(f"\nกำลังเขียนรายงานสรุป Excel ที่: {SUMMARY_EXCEL_PATH}")
     try:
-        with pd.ExcelWriter(SUMMARY_SUMMARY_EXCEL_PATH, engine='openpyxl') as writer:
+        with pd.ExcelWriter(SUMMARY_EXCEL_PATH, engine='openpyxl') as writer:
             # Sheet 1: All_DATA
             if all_data_records:
-                all_data_df = pd.DataFrame(all_data_records, columns=['Timestamp', 'GDB_Path', 'Featureclass', 'Count of Polygon or Polyline'])
+                # *** [MODIFIED] Headers now include 'Category' ***
+                all_data_df = pd.DataFrame(all_data_records, columns=['Timestamp', 'GDB_Path', 'Featureclass', 'Count', 'Category'])
                 
                 # *** แปลง Path ใน Sheet 1 ***
                 all_data_df['GDB_Path'] = all_data_df['GDB_Path'].apply(get_short_gdb_path)
+
+                # *** [NEW] Add Province column for pivoting ***
+                all_data_df["Province"] = all_data_df["GDB_Path"].apply(extract_province)
+
+                # *** [NEW] Rename 'PARCEL_NS3K' to 'NS3K' for pivot column matching ***
+                all_data_df['Category'] = all_data_df['Category'].replace('PARCEL_NS3K', 'NS3K')
                 
-                all_data_df.to_excel(writer, sheet_name='All_DATA', index=False)
-                print(f"  -> เขียน Sheet 'All_DATA' ({len(all_data_df)} แถว)")
+                # *** [NEW] Filter out records where Count is 'Error' before grouping ***
+                all_data_df = all_data_df[all_data_df['Count'] != 'Error']
+                all_data_df['Count'] = pd.to_numeric(all_data_df['Count'])
+
+                # *** [NEW] Group by Province and Category, then sum counts ***
+                # This handles multiple FCs of the same category in one GDB
+                grouped_data_df = all_data_df.groupby(["Province", "Category"])["Count"].sum().reset_index()
+
+                # *** [NEW] Pivot to match the standard's layout ***
+                pivot_data_df = grouped_data_df.pivot(
+                    index="Province",
+                    columns="Category",
+                    values="Count"
+                ).fillna(0).astype(int)
+
+                # *** [NEW] Ensure all required columns exist (even if no data) ***
+                required_cols = ["BLOCK_BLUE", "BLOCK_FIX", "BLOCK_PRICE", "NS3K", "NS3K_CLN", "NS3K_REL", "PARCEL", "PARCEL_CLN", "PARCEL_REL", "ROAD"]
+                for col in required_cols:
+                    if col not in pivot_data_df.columns:
+                        pivot_data_df[col] = 0
+                
+                # Re-order columns to match standard (and include any extras)
+                final_cols = required_cols + [col for col in pivot_data_df.columns if col not in required_cols]
+                pivot_data_df = pivot_data_df[final_cols]
+
+                pivot_data_df.to_excel(writer, sheet_name='All_DATA', index=True) # index=True to keep Province
+                print(f"  -> เขียน Sheet 'All_DATA' (Pivoted) ({len(pivot_data_df)} แถว)")
             else:
                 print("  -> ไม่มีข้อมูลสำหรับ 'All_DATA'")
 
@@ -1378,14 +1454,14 @@ def main():
                 error_sum_df.to_excel(writer, sheet_name='Error SUM', index=False)
                 print(f"  -> เขียน Sheet 'Error SUM' ({len(error_sum_df)} แถว)")
                 # -------------------------------------------------
-                # *** (ส่วนที่เพิ่มใหม่) สร้าง Sheet 3: Report_by_Province ***
+                # *** (ส่วนที่เพิ่มใหม่) สร้าง Sheet 3: Errors_by_Province ***
                 # -------------------------------------------------
                 try:
-                    # 1. ใช้ DataFrame (df) จาก Sheet 2
-                    # (เรา copy() เพื่อป้องกัน SettingWithCopyWarning)
+                    # ใช้ DataFrame (df) จาก Sheet 2
+                    # (เรา copy เพราะมีปัญหา SettingWithCopyWarning)
                     df_report = error_sum_df.copy()
 
-                    # 2. (ข้อ 1) สร้างคอลัมน์ "Province"
+                    # สร้างคอลัมน์ "Province"
                     df_report["Province"] = df_report["GDB_Path"].apply(extract_province)
 
                     # 3. (ข้อ 2) สร้างคอลัมน์ "Category"
@@ -1393,6 +1469,9 @@ def main():
                     
                     # 4. ลบแถวที่ไม่ใช่ Category ที่เราสนใจ (ถ้ามี)
                     df_report = df_report.dropna(subset=["Category"])
+
+                    # *** เปลี่ยนชื่อฟีเจอร์คลาส'PARCEL_NS3K' ให้เป็น 'NS3K' ***
+                    df_report["Category"] = df_report["Category"].replace('PARCEL_NS3K', 'NS3K')
 
                     # 5. Group by และ Sum
                     # เราจะรวม error ทั้งหมด โดยนับตาม "Province" และ "Category"
@@ -1408,15 +1487,24 @@ def main():
                         values="Count of Errors"
                     ).fillna(0).astype(int) # เติม 0 ในช่องที่ไม่มี error
 
+                    # *** เพื่อให้แน่ใจว่ามีคอลัมน์ที่ต้องการ ***
+                    err_report_cols = ["BLOCK_BLUE", "BLOCK_FIX", "BLOCK_PRICE",
+                                       "NS3K", "NS3K_REL",
+                                       "PARCEL", "PARCEL_REL", "ROAD"]
+                    for col in err_report_cols:
+                        if col not in pivot_df.columns:
+                            pivot_df[col] = 0
+                    
+                    # Re-order columns
+                    pivot_df = pivot_df[err_report_cols]
+
                     # 7. บันทึกลง Sheet ใหม่
-                    pivot_df.to_excel(writer, sheet_name='Report_by_Province', index=True) # index=True เพื่อเก็บชื่อจังหวัด
-                    print(f"  -> เขียน Sheet 'Report_by_Province' ({len(pivot_df)} แถว)")
+                    pivot_df.to_excel(writer, sheet_name='Errors_by_Province', index=True) # index=True เพื่อเก็บชื่อจังหวัด
+                    print(f"  -> เขียน Sheet 'Errors_by_Province' ({len(pivot_df)} แถว)")
 
                 except Exception as e:
-                    print(f"  !! ล้มเหลวในการสร้าง Sheet 'Report_by_Province': {e}")
-                # -------------------------------------------------
-                # *** (สิ้นสุดส่วนที่เพิ่มใหม่) ***
-                # -------------------------------------------------
+                    print(f"  !! ล้มเหลวในการสร้าง Sheet 'Errors_by_Province': {e}")
+
             else:
                 print("  -> ไม่มีข้อมูลสำหรับ 'Error SUM'")
 
@@ -1424,7 +1512,7 @@ def main():
 
     except Exception as e:
         print(f"  !! ล้มเหลวในการเขียนไฟล์สรุป Excel: {e}")
-        print("  !! (โปรดตรวจสอบว่าไฟล์ Excel ปิดอยู่ และคุณมีสิทธิ์เขียนทับ)")
+        print("  !! (โปรดตรวจสอบว่าไฟล์ Excel ปิดอยู่ และ/หรือ มีสิทธิ์เขียนทับ)")
 
     print("\nเสร็จแล้วจ้า ดูผลลัพธ์ได้เลยจ้า")
 
