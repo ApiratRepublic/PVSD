@@ -1,3 +1,8 @@
+# Data Standard
+GIS For Land Valuation
+Psychosis Veiled in Sacred Dreams.
+“Madness was never the disease. It was the ritual.”
+Version 6
 ## ประเภทของฟีเจอร์คลาส
 
 
@@ -94,15 +99,18 @@
 		8. CHANGWAT_CODE ต้องเป็น String และเป็น 2 หลัก
 		9. BRANCH_CODE ต้องเป็น String  และเป็น 8 หลัก
 		10. PARCEL_TYPE ต้องเป็น Number
-		11. TD_RP3_TYPE_CODE ต้องเป็น Number และจะต้องเป็น 1 หรือ 2 หรือ 3 หรือ 4 หรือ 5 หรือ 6 หรือ 8 เท่านั้น
+		11. TD_RP3_TYPE_CODE ต้องเป็น Number และจะต้องเป็น 1 หรือ 2 หรือ 3 หรือ 4 หรือ 5 หรือ 6 หรือ 8 หรือ 9 เท่านั้น
 		12. STREET_RN ต้องเป็น Number  และใน BRANCH_CODE เดียวกัน จะต้องไม่มีค่าซ้ำ
 		13. STREET_SMG ต้องเป็น String
 	2. ความสัมพันธ์ระหว่างฟิลด์:
 		1. STREET_NAME กับ TD_RP3_TYPE_CODE:
-			-  ถ้า  TD_RP3_TYPE_CODE เป็น 1 หรือ 2 หรือ 3 หรือ 4 หรือ 5 หรือ 6 หรือ 8  STREET_NAME จะต้องไม่ใช่ค่าว่างหรือ " " หรือ "-"
+			- ถ้า TD_RP3_TYPE_CODE เป็น 9 ไม่จำเป็นต้องตรวจสอบต่อ
+			- ถ้า  TD_RP3_TYPE_CODE เป็น 1 หรือ 2 หรือ 3 หรือ 4 หรือ 5 หรือ 6 หรือ 8  STREET_NAME จะต้องไม่ใช่ค่าว่างหรือ " " หรือ "-"
 			- ถ้า  TD_RP3_TYPE_CODE เป็น 0 หรือค่าว่าง STREET_NAME จะต้องเป็นค่าว่างเท่านั้น
 		2. STREET_NAME และ STREET_CODE ต้องจับคู่กันแบบ 1 ต่อ 1 ภายใน BRANCH_CODE เดียวกัน
+			- ถ้า TD_RP3_TYPE_CODE เป็น 9 ไม่จำเป็นต้องตรวจสอบต่อ
 		3. STREET_NAME กับ  LAND_USE: LAND_USE 
+			- ถ้า TD_RP3_TYPE_CODE เป็น 9 ไม่จำเป็นต้องตรวจสอบต่อ
 			- LAND_USE จะเป็นค่าว่างได้ก็ต่อเมื่อ STREET_NAME เป็นค่าว่าง หรือ " " หรือ "-"
 			- ถ้า STREET_NAME ไม่ใช่ค่าว่าง หรือ " " หรือ "-": LAND_USE จะต้องมีค่า 
 		4. CHANGWAT_CODE กับ BRANCH_CODE: สองหลักแรกของ BRANCH_CODE จะต้องตรงกับ  CHANGWAT_CODE
@@ -122,9 +130,7 @@
 		2. STREET_CODE ต้องเป็น String
 		3. BRANCH_CODE ต้องเป็น String  และมี 8 หลักเท่านั้น
 		4. BLOCK_PRICE_RN ต้องเป็น Number และใน BRANCH_CODE เดียวกัน ต้องไม่ซ้ำกัน
-	2. ~~ความสัมพันธ์ระหว่างฟิลด์:~~
-		1. ~~STREET_NAME และ STREET_CODE ต้องจับคู่กันแบบ 1 ต่อ 1 ภายใน BRANCH_CODE~~ ยกเลิกข้อนี้เนื่องจาก STREET_NAME จะตั้งชื่อเหมือนกันหมดว่า "ที่ดินไม่มีทางเข้าออก"
-	3. ตรวจสอบโพลีกอนที่ซ้อนทับกันสนิท
+	2. ตรวจสอบโพลีกอนที่ซ้อนทับกันสนิท
 6. BLOCK BLUE
 	1. ประเภทข้อมูลของแต่ละฟิลด์:
 		1. BRANCH_CODE ต้องเป็น String และมี 8 หลักเท่านั้น
@@ -187,22 +193,22 @@ Dash = "-"
 
 โดยใช้คอลัมน์ดังต่อไปนี้
 - Timestamp – วัน-เวลาที่สร้างรายงาน เช่น “2025-10-27 09:17:55”
-- GDB – ชื่อ gdb ที่ตรวจสอบ เช่น “50_เชียงใหม่\GDB_50_3”
+- GDB – ชื่อ gdb ที่ตรวจสอบ เช่น “50_เชียงใหม่\GDB_50_3” หมายถึงตรวจสอบ gdb ชื่อ GDB_50_3 ของจังหวัดเชียงใหม่
 - Featureclass - ชื่อฟีเจอร์คลาสที่ตรวจสอบ เช่น “PARCEL_REL_47”
 - Check_Type – ประเภทการตรวจสอบ
 	- Field Check = ตรวจสอบว่ามีฟิลด์ที่กำหนดในแต่ละฟีเจอร์คลาสหรือไม่
 	- Field Type = ประเภทข้อมูล เช่น string หรือ number ตามข้อกำหนด
-	- Data Formaะ = รูปแบบตรงตามที่กำหนด เช่น BRANCH_CODE ต้องมี 8 หลัก
+	- Data Format = รูปแบบตรงตามที่กำหนด เช่น BRANCH_CODE ต้องมี 8 หลัก
 	- Conditional Rule = การใส่ข้อมูลไม่เป็นตามเงื่อนไข เช่น กำหนดว่า UTMSCALE=2000" UTMMAP4 ต้องอยู่ระหว่าง '01'-'04'
 	- Duplicate UTM = primary_key (7 คีย์หลัก) ซ้ำ
 	- Duplicate Value = พบค่าซ้ำ
-	- Data Required = ค่าที่จำเป็นต้องใส่ ไม่ใช่ค่าว่าง เช่น เมื่อ TD_RP3_TYPE_CODE มีค่าตามที่กำหนด STREET NAME จะต้องไม่เป็นค่าว่าง
-	- Data Specified = ต้องใส่ค่าเฉพาะที่กำหนด เช่น LAND_USE จะต้องเป็น “ที่อยู่อาศัย”, “พาณิชยกรรม” ฯลฯ
+	- Data Required = ค่าที่จำเป็นต้องใส่ตามข้อกำหนด
+	- Data Specified = ค่าที่ใส่ จะต้องเป็นค่าเฉพาะที่กำหนด เช่น LAND_USE จะต้องเป็น “ที่อยู่อาศัย”, “พาณิชยกรรม” ฯลฯ เท่านั้น
 	- OneToOne กรณีกำหนดความสัมพันธ์ระหว่าง 2 ฟิลด์ว่าต้องเป็นแบบ 1 ต่อ 1 เช่น STREET_NAME กับ STREET_CODE
 	- Overlap Check Error = ฟีเจอร์คลาสมีปัญหา ไม่สามารถตรวจสอบโพลีกอนซ้อนทับกันได้
 	- Duplicated Polygon = พบโพลีกอนที่ซ้อนทับกันสนิท
 	- Geometry Error = มีปัญหาเรื่อง Geometry
-	- Cursor Error = มีปัญหาการดำเนินการจาก Arcpy
+	- Cursor Error = มีปัญหาการดำเนินการจาก Arcpy (ไม่เกี่ยวกับข้อมูล)
 	- Validator Error= กระบวนการตรวจสอบล้มเหลว (ปัญหาจากสคริปต์ไพธอน)
 - Object_ID(s) – Object ID ที่พบว่าไม่ตรงตามมาตรฐาน
 - Field_Name - ชื่อฟิลด์ที่พบว่าไม่ตรงตามมาตรฐาน

@@ -3,7 +3,7 @@
 # - Focus: PARCEL, PARCEL_NS3K, ROAD, BLOCK_FIX, BLOCK_PRICE, BLOCK_BLUE, PARCEL_REL, NS3K_REL
 #
 #
-# - Version 1.2 (Applied user modification for ROAD)
+# - Version 1.0.2
 # - release date: 2025-11-18
 # - ผู้เขียน: Apirat Rattanapaiboon
 # - ปรับปรุง: เพิ่มเงื่อนไข ถ้า TD_RP3_TYPE_CODE = 9 ไม่ต้องตรวจสอบ 
@@ -25,7 +25,6 @@ from openpyxl import load_workbook
 # ROOT_DIR: ที่เก็บ GDB ทั้งหมด ภายในควรกำหนดโครงสร้างโฟลเดอร์ให้เหมือนกัน 
 # เช่น 49_มุกดาหาร\GDB_49_2\data.gdb
 # เช่น 10-1_กรุงเทพมหานคร1\GDB_10_1\data.gdb
-# ใช้ "_" คั่นระหว่างรหัสจังหวัดกับชื่อจังหวัด (ใช้แยกชื่อจังหวัดตอนรายงาน)
 # REPORT_ROOT: ที่เก็บรายงานผล
 # OVERLAP_ROOT: ที่เก็บไฟล์ผลการตรวจสอบทับซ้อน
 # SUMMARY_EXCEL_PATH: ที่เก็บไฟล์สรุปรายงาน Excel
@@ -46,7 +45,7 @@ ROAD_LAND_USE_DOMAIN = {"เกษตรกรรม", "ที่อยู่อ
                         "พาณิชยกรรมและที่อยู่อาศัย", "ที่อยู่อาศัยและเกษตรกรรม",
                         "อุตสาหกรรม", "ส่วนราชการ",  "พื้นที่ป่าสงวน", "พื้นที่อุทยาน"}
 ROAD_STREET_TYPE_DOMAIN = {"คอนกรีต", "ลาดยาง", "หินคลุก", "ลูกรัง", "ดิน", "น้ำ", "ไม้", "ทางไม่มีสภาพ"}
-ROAD_REQ_NAME_TD_CODES = {1, 2, 3, 4, 5, 6, 8}
+ROAD_REQ_NAME_TD_CODES = {1, 2, 3, 4, 5, 6, 8, 9}
 REL_TABLE_NO_DOMAIN = {1, 2, 3, 41, 42, 5, 6, 7}
 REL_SUB_TABLE_NO_RANGE = range(0, 7) # 0-6
 
@@ -110,9 +109,6 @@ def get_short_gdb_path(full_gdb_path):
 def extract_province(gdb_path_str):
     """
     ฟังก์ชันนี้ใช้ดึงชื่อจังหวัดจาก GDB_Path
-#   ตัวอย่าง: "36_ชัยภูมิ\GDB_36_1" -> "ชัยภูมิ"
-#   ตัวอย่าง: "49_มุกดาหาร\GDB_49_2" -> "มุกดาหาร"
-#   ตัวอย่าง: "10-1_กรุงเทพมหานคร1\GDB_10_1" -> "กรุงเทพมหานคร1"
     """
     try:
         # Regex นี้จะหา (ตัวเลข/ขีดล่าง) + (ขีดกลาง/ขีดล่าง) + (ดึงชื่อจังหวัด) + (เครื่องหมาย \)
@@ -722,9 +718,7 @@ def validate_road(fc_path, error_list, basename=None):
                 street_type = rec.get("STREET_TYPE"); land_use = rec.get("LAND_USE")
 
                 # ================================================================
-                # --- BEGIN MODIFICATION (Section 3: ROAD) ---
-                #
-                # 3. (User Rule) ถ้า TD_RP3_TYPE_CODE เป็น 9 ไม่ต้องตรวจสอบใดใดทั้งสิ้น
+                # ถ้า TD_RP3_TYPE_CODE เป็น 9 ไม่ต้องตรวจสอบใดใดทั้งสิ้น
                 # เราจะตรวจสอบค่านี้ก่อน ถ้าเป็น 9 ให้ข้ามไปวนลูปแถวถัดไป (continue)
                 
                 td_type_int_check = None
@@ -733,10 +727,6 @@ def validate_road(fc_path, error_list, basename=None):
                 
                 if td_type_int_check == 9:
                     continue  # ข้ามการตรวจสอบทั้งหมดสำหรับแถวนี้
-                
-                # --- END MODIFICATION ---
-                # ================================================================
-
  
                 # 3.1.1. STREET_NAME ต้องเป็น String ถ้า TD_RP3_TYPE_CODE เป็น 1 หรือ 2 หรือ 3 หรือ 4 หรือ 5 หรือ 6 หรือ 8 จะต้องไม่ใช่ค่าว่าง
                 is_street_name_empty = (name is None or (isinstance(name, str) and name.strip() == ""))
