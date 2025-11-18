@@ -1,11 +1,5 @@
 # =============================================================================
 # - ตรวจสอบรูปแบบข้อมูลของฟีเจอร์คลาสใน GDB ตามมาตรฐานที่กำหนด
-<<<<<<< Updated upstream
-# - Version 1.1
-# - release date: 2025-11-11
-# - ผู้เขียน: Apirat Rattanapaiboon
-
-=======
 # - Focus: PARCEL, PARCEL_NS3K, ROAD, BLOCK_FIX, BLOCK_PRICE, BLOCK_BLUE, PARCEL_REL, NS3K_REL
 #
 #
@@ -13,7 +7,6 @@
 # - release date: 2025-11-18
 # - ผู้เขียน: Apirat Rattanapaiboon
 # - ปรับปรุง: เพิ่มเงื่อนไข ถ้า TD_RP3_TYPE_CODE = 9 ไม่ต้องตรวจสอบ 
->>>>>>> Stashed changes
 # =============================================================================
 
 import arcpy
@@ -37,18 +30,11 @@ from openpyxl import load_workbook
 # OVERLAP_ROOT: ที่เก็บไฟล์ผลการตรวจสอบทับซ้อน
 # SUMMARY_EXCEL_PATH: ที่เก็บไฟล์สรุปรายงาน Excel
 ###############################################
-<<<<<<< Updated upstream
-ROOT_DIR = r"D:\A02-Projects\Clinix\Test_GDB"  # ที่รวมไฟล์ GDB
-REPORT_ROOT = r"D:\A02-Projects\Clinix\Report"  # ที่เก็บรายงานผล
-OVERLAP_ROOT = r"D:\A02-Projects\Clinix\Overlaping"  # ที่เก็บไฟล์ผลการตรวจสอบทับซ้อน
-SUMMARY_EXCEL_PATH = os.path.join(REPORT_ROOT,"Summary_Report.xlsx") # ไฟล์สรุปรายงานรวม
-=======
 
 ROOT_DIR = r"D:\A02-Projects\Clinix\Test_GDB"
 REPORT_ROOT = r"D:\A02-Projects\Clinix\Report"
 OVERLAP_ROOT = r"D:\A02-Projects\Clinix\Overlaping"
 SUMMARY_EXCEL_PATH = os.path.join(REPORT_ROOT,"Summary_Report.xlsx")
->>>>>>> Stashed changes
 
 # --------------------------------------------
 #   จัดการค่าต่าง ๆ รวมทั้งฟังก์ชัน ตัวแปร ที่ใช้ร่วมกัน
@@ -124,15 +110,9 @@ def get_short_gdb_path(full_gdb_path):
 def extract_province(gdb_path_str):
     """
     ฟังก์ชันนี้ใช้ดึงชื่อจังหวัดจาก GDB_Path
-<<<<<<< Updated upstream
-    ตัวอย่าง: "36-ชัยภูมิ\GDB_36_1" -> "ชัยภูมิ"
-    ตัวอย่าง: "49_มุกดาหาร\GDB_49_2" -> "มุกดาหาร"
-    ตัวอย่าง: "10_1-กรุงเทพมหานคร1\GDB_10_1" -> "กรุงเทพมหานคร1"
-=======
 #   ตัวอย่าง: "36_ชัยภูมิ\GDB_36_1" -> "ชัยภูมิ"
 #   ตัวอย่าง: "49_มุกดาหาร\GDB_49_2" -> "มุกดาหาร"
 #   ตัวอย่าง: "10-1_กรุงเทพมหานคร1\GDB_10_1" -> "กรุงเทพมหานคร1"
->>>>>>> Stashed changes
     """
     try:
         # Regex นี้จะหา (ตัวเลข/ขีดล่าง) + (ขีดกลาง/ขีดล่าง) + (ดึงชื่อจังหวัด) + (เครื่องหมาย \)
@@ -491,15 +471,9 @@ def validate_parcel(fc_path, error_list, basename=None):
                 # 1.1.6.LAND_NO  ต้องเป็น Number (เช็คจากประเภทข้อมูลแล้ว)
 	            
                 # 1.1.7.PARCEL_TYPE ต้องเป็น Number (เช็คจากประเภทข้อมูลแล้ว)
-<<<<<<< Updated upstream
-                # และต้องไม่เป็น 3                
-                if parcel_type == 3:
-                    write_error_report(error_list, gdb_path, fc_name, "Conditional Rule", oid, "PARCEL_TYPE", parcel_type, "ชั้น PARCEL ไม่ควรมี PARCEL_TYPE เป็น 3 (ควรอยู่ในชั้น NS3K)")
-=======
                 # และต้องไม่เป็น 3 ถ้าอยู่ในชั้น PARCEL               
                 # if parcel_type == 3:
                 #     write_error_report(error_list, gdb_path, fc_name, "Conditional Rule", oid, "PARCEL_TYPE", parcel_type, "ชั้น PARCEL ไม่ควรมี PARCEL_TYPE เป็น 3 (ควรอยู่ในชั้น NS3K)")
->>>>>>> Stashed changes
 	                            
                 # 1.1.8.CHANGWAT_CODE ต้องเป็น String และเป็น 2 หลัก เช่น "66"
                 if not (isinstance(cwt,str) and len(cwt)==2 and cwt.isdigit()):
@@ -1329,15 +1303,9 @@ def main():
                         fc_path = os.path.join(gdb, fc)
                         print(f"  >> ตรวจสอบ {fc} ด้วย {key} Validator...")
                         # (Sheet 1: นับจำนวน - ยังใช้ gdb path เต็ม)
-<<<<<<< Updated upstream
-                        # # *** สำหรับการนับแบบมีเงื่อนไข ***       
-                        try:
-                            # 1. Get total count (for all types)
-=======
                         # # *** สำหรับการนับแบบมีเงื่อนไข ***                            
                         try:
                              # 1. Get total count (for all types)
->>>>>>> Stashed changes
                             total_count = int(arcpy.management.GetCount(fc_path)[0])
                             all_data_records.append([
                                 run_timestamp,
