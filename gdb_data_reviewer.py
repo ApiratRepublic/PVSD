@@ -1,9 +1,19 @@
 # =============================================================================
 # - ตรวจสอบรูปแบบข้อมูลของฟีเจอร์คลาสใน GDB ตามมาตรฐานที่กำหนด
+<<<<<<< Updated upstream
 # - Version 1.1
 # - release date: 2025-11-11
 # - ผู้เขียน: Apirat Rattanapaiboon
 
+=======
+# - Focus: PARCEL, PARCEL_NS3K, ROAD, BLOCK_FIX, BLOCK_PRICE, BLOCK_BLUE, PARCEL_REL, NS3K_REL
+#
+#
+# - Version 1.2 (Applied user modification for ROAD)
+# - release date: 2025-11-18
+# - ผู้เขียน: Apirat Rattanapaiboon
+# - ปรับปรุง: เพิ่มเงื่อนไข ถ้า TD_RP3_TYPE_CODE = 9 ไม่ต้องตรวจสอบ 
+>>>>>>> Stashed changes
 # =============================================================================
 
 import arcpy
@@ -18,11 +28,27 @@ from openpyxl import load_workbook
 
 ###############################################
 #----------------- ที่ตั้งไฟล์
+# ตั้งชื่อ ROOT_DIR, REPORT_ROOT, OVERLAP_ROOT ตามต้องการ
+# ROOT_DIR: ที่เก็บ GDB ทั้งหมด ภายในควรกำหนดโครงสร้างโฟลเดอร์ให้เหมือนกัน 
+# เช่น 49_มุกดาหาร\GDB_49_2\data.gdb
+# เช่น 10-1_กรุงเทพมหานคร1\GDB_10_1\data.gdb
+# ใช้ "_" คั่นระหว่างรหัสจังหวัดกับชื่อจังหวัด (ใช้แยกชื่อจังหวัดตอนรายงาน)
+# REPORT_ROOT: ที่เก็บรายงานผล
+# OVERLAP_ROOT: ที่เก็บไฟล์ผลการตรวจสอบทับซ้อน
+# SUMMARY_EXCEL_PATH: ที่เก็บไฟล์สรุปรายงาน Excel
 ###############################################
+<<<<<<< Updated upstream
 ROOT_DIR = r"D:\A02-Projects\Clinix\Test_GDB"  # ที่รวมไฟล์ GDB
 REPORT_ROOT = r"D:\A02-Projects\Clinix\Report"  # ที่เก็บรายงานผล
 OVERLAP_ROOT = r"D:\A02-Projects\Clinix\Overlaping"  # ที่เก็บไฟล์ผลการตรวจสอบทับซ้อน
 SUMMARY_EXCEL_PATH = os.path.join(REPORT_ROOT,"Summary_Report.xlsx") # ไฟล์สรุปรายงานรวม
+=======
+
+ROOT_DIR = r"D:\A02-Projects\Clinix\Test_GDB"
+REPORT_ROOT = r"D:\A02-Projects\Clinix\Report"
+OVERLAP_ROOT = r"D:\A02-Projects\Clinix\Overlaping"
+SUMMARY_EXCEL_PATH = os.path.join(REPORT_ROOT,"Summary_Report.xlsx")
+>>>>>>> Stashed changes
 
 # --------------------------------------------
 #   จัดการค่าต่าง ๆ รวมทั้งฟังก์ชัน ตัวแปร ที่ใช้ร่วมกัน
@@ -98,9 +124,15 @@ def get_short_gdb_path(full_gdb_path):
 def extract_province(gdb_path_str):
     """
     ฟังก์ชันนี้ใช้ดึงชื่อจังหวัดจาก GDB_Path
+<<<<<<< Updated upstream
     ตัวอย่าง: "36-ชัยภูมิ\GDB_36_1" -> "ชัยภูมิ"
     ตัวอย่าง: "49_มุกดาหาร\GDB_49_2" -> "มุกดาหาร"
     ตัวอย่าง: "10_1-กรุงเทพมหานคร1\GDB_10_1" -> "กรุงเทพมหานคร1"
+=======
+#   ตัวอย่าง: "36_ชัยภูมิ\GDB_36_1" -> "ชัยภูมิ"
+#   ตัวอย่าง: "49_มุกดาหาร\GDB_49_2" -> "มุกดาหาร"
+#   ตัวอย่าง: "10-1_กรุงเทพมหานคร1\GDB_10_1" -> "กรุงเทพมหานคร1"
+>>>>>>> Stashed changes
     """
     try:
         # Regex นี้จะหา (ตัวเลข/ขีดล่าง) + (ขีดกลาง/ขีดล่าง) + (ดึงชื่อจังหวัด) + (เครื่องหมาย \)
@@ -459,9 +491,15 @@ def validate_parcel(fc_path, error_list, basename=None):
                 # 1.1.6.LAND_NO  ต้องเป็น Number (เช็คจากประเภทข้อมูลแล้ว)
 	            
                 # 1.1.7.PARCEL_TYPE ต้องเป็น Number (เช็คจากประเภทข้อมูลแล้ว)
+<<<<<<< Updated upstream
                 # และต้องไม่เป็น 3                
                 if parcel_type == 3:
                     write_error_report(error_list, gdb_path, fc_name, "Conditional Rule", oid, "PARCEL_TYPE", parcel_type, "ชั้น PARCEL ไม่ควรมี PARCEL_TYPE เป็น 3 (ควรอยู่ในชั้น NS3K)")
+=======
+                # และต้องไม่เป็น 3 ถ้าอยู่ในชั้น PARCEL               
+                # if parcel_type == 3:
+                #     write_error_report(error_list, gdb_path, fc_name, "Conditional Rule", oid, "PARCEL_TYPE", parcel_type, "ชั้น PARCEL ไม่ควรมี PARCEL_TYPE เป็น 3 (ควรอยู่ในชั้น NS3K)")
+>>>>>>> Stashed changes
 	                            
                 # 1.1.8.CHANGWAT_CODE ต้องเป็น String และเป็น 2 หลัก เช่น "66"
                 if not (isinstance(cwt,str) and len(cwt)==2 and cwt.isdigit()):
@@ -709,6 +747,22 @@ def validate_road(fc_path, error_list, basename=None):
                 street_rn = rec.get("STREET_RN"); name = rec.get("STREET_NAME"); code = rec.get("STREET_CODE")
                 street_type = rec.get("STREET_TYPE"); land_use = rec.get("LAND_USE")
 
+                # ================================================================
+                # --- BEGIN MODIFICATION (Section 3: ROAD) ---
+                #
+                # 3. (User Rule) ถ้า TD_RP3_TYPE_CODE เป็น 9 ไม่ต้องตรวจสอบใดใดทั้งสิ้น
+                # เราจะตรวจสอบค่านี้ก่อน ถ้าเป็น 9 ให้ข้ามไปวนลูปแถวถัดไป (continue)
+                
+                td_type_int_check = None
+                if can_be_number(td_type):
+                    td_type_int_check = int(float(td_type))
+                
+                if td_type_int_check == 9:
+                    continue  # ข้ามการตรวจสอบทั้งหมดสำหรับแถวนี้
+                
+                # --- END MODIFICATION ---
+                # ================================================================
+
  
                 # 3.1.1. STREET_NAME ต้องเป็น String ถ้า TD_RP3_TYPE_CODE เป็น 1 หรือ 2 หรือ 3 หรือ 4 หรือ 5 หรือ 6 หรือ 8 จะต้องไม่ใช่ค่าว่าง
                 is_street_name_empty = (name is None or (isinstance(name, str) and name.strip() == ""))
@@ -756,7 +810,9 @@ def validate_road(fc_path, error_list, basename=None):
                     # กรณีเป็น non-numeric string (เช่น "abc") ซึ่งผิดเสมอ
                     write_error_report(error_list, gdb_path, fc_name, "Data Format", oid, "TD_RP3_TYPE_CODE", td_type, "TD_RP3_TYPE_CODE ต้องเป็นตัวเลขเท่านั้น")
                     is_td_type_valid_number = False
-
+                
+                # (*** หมายเหตุ: บล็อกนี้จะไม่ทำงานสำหรับ td_type = 9 อีกต่อไป
+                #     เพราะเราได้ `continue` ไปก่อนหน้านี้แล้ว ***)
                 if is_td_type_valid_number:
                     # ตรวจสอบว่า STREET_NAME ว่างหรือไม่
                     is_street_name_empty = (name is None or (isinstance(name, str) and name.strip() == ""))
@@ -776,7 +832,8 @@ def validate_road(fc_path, error_list, basename=None):
                         ALLOWED_VALUES_WHEN_NAME_IS_EMPTY = {0, None} 
                         ALLOWED_VALUES_WHEN_NAME_IS_EMPTY.update(VALID_TD_RP3) # เพิ่ม {1,2,3...}
                         if td_type_int not in ALLOWED_VALUES_WHEN_NAME_IS_EMPTY:
-                            # ถ้า td_type เป็นค่าอื่น (เช่น 7, 9, 99) จะไม่ยอมรับ
+                            # ถ้า td_type เป็นค่าอื่น (เช่น 7, 99) จะไม่ยอมรับ
+                            # (9 ถูกข้ามไปแล้ว)
                             allowed_str = "{0, None} หรือ " + str(sorted(VALID_TD_RP3))
                             write_error_report(error_list, gdb_path, fc_name, "Data Specified", oid, "TD_RP3_TYPE_CODE", td_type, f"TD_RP3_TYPE_CODE ต้องเป็น {allowed_str} (เนื่องจาก STREET_NAME ว่างเปล่า)")
                 
@@ -979,6 +1036,8 @@ def validate_block_price(fc_path, error_list, basename=None):
                 else:
                     branch_rns[(branch.strip() if branch else "NULL", int(float(rn)))].append(oid)
         
+        # 5.2.1 (REMOVED per user spec) - 1-to-1 check for STREET_NAME/STREET_CODE is intentionally omitted.
+        
         for key, oids in branch_rns.items():
             if len(oids) > 1:
                 write_error_report(error_list, gdb_path, fc_name, "Duplicate Value", str(oids), "BLOCK_PRICE_RN", key[1], f"BLOCK_PRICE_RN ซ้ำใน BRANCH_CODE '{key[0]}'")
@@ -986,7 +1045,7 @@ def validate_block_price(fc_path, error_list, basename=None):
     except Exception as ex:
         write_error_report(error_list, gdb_path, fc_name, "Cursor Error", -1, "", "", str(ex))
     
-    # 5.2. ตรวจสอบโพลีกอนที่ซ้อนทับกันสนิท
+    # 5.3. ตรวจสอบโพลีกอนที่ซ้อนทับกันสนิท (Original rule 5.3)
     check_for_exact_overlaps(fc_path, error_list, os.path.join(OVERLAP_ROOT,"BLOCK"), basename or "BLOCK_PRICE")
 
 ##############################################
@@ -1270,9 +1329,15 @@ def main():
                         fc_path = os.path.join(gdb, fc)
                         print(f"  >> ตรวจสอบ {fc} ด้วย {key} Validator...")
                         # (Sheet 1: นับจำนวน - ยังใช้ gdb path เต็ม)
+<<<<<<< Updated upstream
                         # # *** สำหรับการนับแบบมีเงื่อนไข ***       
                         try:
                             # 1. Get total count (for all types)
+=======
+                        # # *** สำหรับการนับแบบมีเงื่อนไข ***                            
+                        try:
+                             # 1. Get total count (for all types)
+>>>>>>> Stashed changes
                             total_count = int(arcpy.management.GetCount(fc_path)[0])
                             all_data_records.append([
                                 run_timestamp,
