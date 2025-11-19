@@ -3,7 +3,7 @@
 # - Focus: PARCEL, PARCEL_NS3K, ROAD, BLOCK_FIX, BLOCK_PRICE, BLOCK_BLUE, PARCEL_REL, NS3K_REL
 #
 #
-# - Version 1.0.2
+# - Version 1.2 (Applied user modification for ROAD)
 # - release date: 2025-11-18
 # - ผู้เขียน: Apirat Rattanapaiboon
 # - ปรับปรุง: เพิ่มเงื่อนไข ถ้า TD_RP3_TYPE_CODE = 9 ไม่ต้องตรวจสอบ 
@@ -25,12 +25,13 @@ from openpyxl import load_workbook
 # ROOT_DIR: ที่เก็บ GDB ทั้งหมด ภายในควรกำหนดโครงสร้างโฟลเดอร์ให้เหมือนกัน 
 # เช่น 49_มุกดาหาร\GDB_49_2\data.gdb
 # เช่น 10-1_กรุงเทพมหานคร1\GDB_10_1\data.gdb
+# ใช้ "_" คั่นระหว่างรหัสจังหวัดกับชื่อจังหวัด (ใช้แยกชื่อจังหวัดตอนรายงาน)
 # REPORT_ROOT: ที่เก็บรายงานผล
 # OVERLAP_ROOT: ที่เก็บไฟล์ผลการตรวจสอบทับซ้อน
 # SUMMARY_EXCEL_PATH: ที่เก็บไฟล์สรุปรายงาน Excel
 ###############################################
 
-ROOT_DIR = r"D:\A02-Projects\Clinix\Test_GDB"
+ROOT_DIR = r"V:\00.แผนงาน WarRoom ปี 2569\GDB รอบ2"
 REPORT_ROOT = r"D:\A02-Projects\Clinix\Report"
 OVERLAP_ROOT = r"D:\A02-Projects\Clinix\Overlaping"
 SUMMARY_EXCEL_PATH = os.path.join(REPORT_ROOT,"Summary_Report.xlsx")
@@ -504,9 +505,9 @@ def validate_parcel(fc_path, error_list, basename=None):
                 # (else: ถ้า LAND_NO เป็น 0 หรือ ว่าง, ก็ไม่ต้อง add เข้า utm_key)
 
 
-            for primery_key, oids in utm_key.items():
+            for PRIMARY_KEY, oids in utm_key.items():
                 if len(oids) > 1:
-                    write_error_report(error_list, gdb_path, fc_name, "Duplicate UTM", str(oids), "PRIMERY_KEY", primery_key, "BRANCH_CODE+UTMMAP1+UTMMAP2+UTMMAP3+UTMMAP4+UTMSCALE+LAND_NO มีค่าซ้ำ")
+                    write_error_report(error_list, gdb_path, fc_name, "Duplicate UTM", str(oids), "PRIMARY_KEY", PRIMARY_KEY, "BRANCH_CODE+UTMMAP1+UTMMAP2+UTMMAP3+UTMMAP4+UTMSCALE+LAND_NO มีค่าซ้ำ")
 
             for k, oids in branch_parcel_rn.items():
                 if len(oids) > 1:
@@ -631,9 +632,9 @@ def validate_parcel_ns3k(fc_path, error_list, basename=None):
                     utm_key[check_key].append(oid)
                 # (else: ถ้า LAND_NO เป็น 0 หรือ ว่าง, ก็ไม่ต้อง add เข้า utm_key)
 
-            for primery_key,oids in utm_key.items():
+            for PRIMARY_KEY,oids in utm_key.items():
                 if len(oids)>1:
-                    write_error_report(error_list, gdb_path, fc_name, "Duplicate UTM", str(oids), "PRIMERY_KEY", primery_key, "BRANCH_CODE+UTMMAP1+UTMMAP2+UTMMAP3+UTMMAP4+UTMSCALE+LAND_NO มีค่าซ้ำ")
+                    write_error_report(error_list, gdb_path, fc_name, "Duplicate UTM", str(oids), "PRIMARY_KEY", PRIMARY_KEY, "BRANCH_CODE+UTMMAP1+UTMMAP2+UTMMAP3+UTMMAP4+UTMSCALE+LAND_NO มีค่าซ้ำ")
             for k,oids in branch_ns3k.items():
                 if len(oids)>1:
                     write_error_report(error_list, gdb_path, fc_name, "Duplicate Value", str(oids), "NS3K_RN", k, "NS3K_RN ซ้ำภายใน BRANCH_CODE เดียวกัน")
