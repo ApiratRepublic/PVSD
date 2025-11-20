@@ -4,17 +4,7 @@ PVSD Repository is GIS Data Reviewer.
 Specifically for my friends at the Psychosis Veiled in Sacred Dreams.
 
 ## ในนี้มีอะไร
-รวบรวมไพธอนสคริปต์ที่ใช้ในการบริหารจัดการด้าน GIS ทั้งที่อยู่ใน GDB และเป็นเชปไฟล์
-
-ตรวจสอบและจัดการข้อมูลเบื้องต้นตามข้อกำหนดที่ตั้งไว้
-
-## เจตจำนงเสรี สรรพลี้หวน
-ในนี้จะมี 2 branch ตัว main จะใช้ Arcpy จากการทดสอบ gdb จำนวน 160 gdb (77 จังหวัด) ใช้เวลาตรวจสอบโดยใช้ gdb_data_reviewer.py ใช้เวลาประมาณ 75 นาที 
-gdb_data_reviewer.py ใช้ Arcpy (ต้องติดตั้ง ArcGIS Pro)
-
-ส่วน brach "reno" จะใช้ geopandas + fiona 
-
-ตรวจสอบความครบถ้วนและออกรายงาน ตามที่ระบุใน GDB Data Standard.md
+รวบรวมไพธอนสคริปต์ที่ใช้ในด้าน GIS ทั้งที่อยู่ใน GDB และเป็นเชปไฟล์
 
 ## ในนี้มีอะไร
 ในโปรเจ็กต์นี้ ประกอบด้วยไพธอนสคริปต์ดังต่อไปนี้
@@ -29,9 +19,10 @@ gdb_data_reviewer.py ใช้ Arcpy (ต้องติดตั้ง ArcGIS P
 
 ใช้สำหรับตรวจสอบว่า ข้อมูลที่อยู่ในฟิลด์ตามที่กำหนดในแต่ละฟีเจอร์คลาส ครบตามที่กำหนดหรือไม่ 
 
-(ข้อกำหนดต่าง ๆ ที่ตรวจสอบ จะอยู่ใน GDB Data Standard.md) 
+ข้อกำหนดต่าง ๆ ที่ตรวจสอบ จะอยู่ใน [GDB Data Standard](https://github.com/ApiratRepublic/PVSD/wiki/Logic_For_GDB_Data_Standard) 
 
-วิธีใช้งานและตั้งค่าจะอยู่ใน gdb_data_reviewer.md
+วิธีใช้งานและตั้งค่าจะอยู่ใน [gdb_data_reviewer](https://github.com/ApiratRepublic/PVSD/wiki/gdb_data_reviewer)
+
 สคริปต์นี้ ใช้ Arcpy หมายความว่าต้องรันใน ENV ของ ArcGIS Pro
 
 ## อภิ Need you!
