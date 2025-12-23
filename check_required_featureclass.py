@@ -1,4 +1,5 @@
 ########################################################################
+########################################################################
 #### สำหรับเช็คว่า GDB มี Featureclass ที่กำหนด ครบหรือไม่ ใช่หรือมั่ว ชัวร์หรือไม่ ###
 #### โดยจะนับจำนวนฟีเจอร์คลาสที่ตรงกับ Pattern ที่กำหนดไว้
 #### สคริปต์นี้สร้างขึ้นเพื่อช่วยตรวจสอบความสมบูรณ์ของข้อมูล GDB
@@ -12,6 +13,8 @@
 #### version: 1.00
 #### ผู้เขียน: Apirat Rattanapaiboon
 ########################################################################
+########################################################################
+
 
 import os
 import re
@@ -19,7 +22,7 @@ import arcpy
 import pandas as pd
 
 # === ตั้งค่า ===
-root_dir = r"D:\A02-Projects\WarRoom\GDB"
+root_dir = r"V:\00.แผนงาน WarRoom ปี 2569\GDB รอบ2"
 output_excel = r"D:\A02-Projects\WarRoom\Report\check_gdb.xlsx"
 
 # === กำหนดฟีเจอร์คลาสที่จะตรวจสอบ === #
@@ -54,9 +57,9 @@ for dirpath, dirnames, filenames in os.walk(root_dir):
                             if pattern.match(fc):
                                 counts[key] += 1
                 else:
-                    print(f"  No feature classes found in {gdb_path}")
+                    print(f"  ไม่พบฟีเจอร์คลาสใน {gdb_path}")
             except Exception as e:
-                print(f"  Error reading {gdb_path}: {e}")
+                print(f"  Error พบปัญหา {gdb_path}: {e}")
 
             row = {"Full Path": gdb_path}
             row.update(counts)
@@ -71,4 +74,4 @@ df = df[
 os.makedirs(os.path.dirname(output_excel), exist_ok=True)
 df.to_excel(output_excel, index=False)
 
-print(f"\n✅ Done! Report saved to: {output_excel}")
+print(f"\n✅ เรียบร้อย! เก็บรายงานไว้ที่: {output_excel}")

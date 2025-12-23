@@ -17,23 +17,24 @@ import uuid
 from collections import defaultdict
 import pandas as pd
 from openpyxl import load_workbook
-
+current_date_str = datetime.datetime.now().strftime("%Y%m%d")
 
 ###############################################
 #----------------- ที่ตั้งไฟล์
 # ตั้งชื่อ ROOT_DIR, REPORT_ROOT, OVERLAP_ROOT ตามต้องการ
 # ROOT_DIR: ที่เก็บ GDB ทั้งหมด ภายในควรกำหนดโครงสร้างโฟลเดอร์ให้เหมือนกัน 
-# เช่น 49_มุกดาหาร\GDB_49_2\data.gdb
-# เช่น 10-1_กรุงเทพมหานคร1\GDB_10_1\data.gdb
+# --- เช่น 49_มุกดาหาร\GDB_49_2\data.gdb
+# ---เช่น 10-1_กรุงเทพมหานคร1\GDB_10_1\data.gdb
 # REPORT_ROOT: ที่เก็บรายงานผล
 # OVERLAP_ROOT: ที่เก็บไฟล์ผลการตรวจสอบทับซ้อน
 # SUMMARY_EXCEL_PATH: ที่เก็บไฟล์สรุปรายงาน Excel
 ###############################################
 
-ROOT_DIR = r"D:\A02-Projects\Clinix\Test_GDB"
-REPORT_ROOT = r"D:\A02-Projects\Clinix\Report"
-OVERLAP_ROOT = r"D:\A02-Projects\Clinix\Overlaping"
-SUMMARY_EXCEL_PATH = os.path.join(REPORT_ROOT,"Summary_Report.xlsx")
+ROOT_DIR = r"D:\A02-Projects\PreWar\GDB"
+REPORT_ROOT = r"D:\A02-Projects\PreWar\Report"
+OVERLAP_ROOT = r"D:\A02-Projects\PreWar\Overlaping"
+summary_filename = f"Summary_Report_{current_date_str}.xlsx"
+SUMMARY_EXCEL_PATH = os.path.join(REPORT_ROOT,summary_filename)
 
 # --------------------------------------------
 #   จัดการค่าต่าง ๆ รวมทั้งฟังก์ชัน ตัวแปร ที่ใช้ร่วมกัน
@@ -1295,17 +1296,17 @@ def main():
                         # (Sheet 1: นับจำนวน - ยังใช้ gdb path เต็ม)
                         # # *** สำหรับการนับแบบมีเงื่อนไข ***                            
                         try:
-                             # 1. Get total count (for all types)
+                             # 1. นับจำนวนทั้งหมด (all types)
                             total_count = int(arcpy.management.GetCount(fc_path)[0])
                             all_data_records.append([
                                 run_timestamp,
                                 gdb, 
                                 fc,
                                 total_count,
-                                key # Add the category (e.g., "PARCEL", "ROAD")
+                                key # เพิ่มกลุ่ม (e.g., "PARCEL", "ROAD")
                             ])
                                 
-                            # 2. Get conditional counts if applicable
+                            # 2. นับตามเงื่อนไข
                             if key == "PARCEL":
                                 cln_layer = f"in_memory/{basename_for_mem}_parcel_cln"
                                 # Standard: LAND_NO not 0/empty AND PARCEL_TYPE is 1, 4, or 5
@@ -1478,7 +1479,7 @@ def main():
                 error_sum_df.to_excel(writer, sheet_name='Error SUM', index=False)
                 print(f"  -> เขียน Sheet 'Error SUM' ({len(error_sum_df)} แถว)")
                 # -------------------------------------------------
-                # *** (ส่วนที่เพิ่มใหม่) สร้าง Sheet 3: Errors_by_Province ***
+                # *** สร้าง Sheet 3: Errors_by_Province ***
                 # -------------------------------------------------
                 try:
                     # ใช้ DataFrame (df) จาก Sheet 2
