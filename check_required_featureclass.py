@@ -22,8 +22,8 @@ import arcpy
 import pandas as pd
 
 # === ตั้งค่า ===
-root_dir = r"V:\00.แผนงาน WarRoom ปี 2569\GDB รอบ2"
-output_excel = r"D:\A02-Projects\WarRoom\Report\check_gdb.xlsx"
+root_dir = r"D:\A02-Projects\WarRoom\GDB2"
+output_excel = r"D:\A02-Projects\WarRoom\Report\check_gdb2.xlsx"
 
 # === กำหนดฟีเจอร์คลาสที่จะตรวจสอบ === #
 patterns = {

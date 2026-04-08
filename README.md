@@ -25,6 +25,10 @@ Specifically for my friends at the Psychosis Veiled in Sacred Dreams.
 
 สคริปต์นี้ ใช้ Arcpy หมายความว่าต้องรันใน ENV ของ ArcGIS Pro
 
+### detect_overlapping_polygon.py
+
+ใช้สำหรับตรวจสอบพื้นที่ซ้อนทับของโพลีกอน
+
 ## อภิ Need you!
 หากมีคำแนะนำว่าควรตรวจสอบอะไรเพิ่ม หรือตรรกะในการตรวจสอบผิดพลาด กรุณาแจ้งโดยตรงนะจ๊ะ
 
