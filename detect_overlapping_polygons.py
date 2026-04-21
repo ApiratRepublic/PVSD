@@ -273,19 +273,19 @@ def detect_overlaps(fc: str) -> list[dict]:
     try:
         arcpy.analysis.Intersect([_LYR_A, _LYR_B], temp)
     except arcpy.ExecuteError:
-        log.error(f"    [Error] Intersect failed for {fc}. รูปปิดอาจมีปัญหา")
+        log.error(f"    [Error] การดำเนินการ {fc} ล้มเหลว โพลีกอนอาจมีปัญหา")
         return []
 
     # ตรวจสอบให้มั่นใจว่าสร้างไฟล์แล้ว ก่อน ListFields
     if not arcpy.Exists(temp):
-        log.warning(f"    [Warning] Intersect output not found for {fc}. Skipping.")
+        log.warning(f"    [Warning] ไม่พบ {fc}. กำลังข้าม.")
         return []
 
     fields     = [f.name for f in arcpy.ListFields(temp)]
     fid_fields = sorted(f for f in fields if f.startswith("FID_"))
 
     if len(fid_fields) < 2:
-        log.warning("    Intersect produced fewer than 2 FID_ fields — skipping.")
+        log.warning("    มีน้อยกว่า 2 ฟิลด์ FID_ — กำลังข้าม.")
         return []
 
     fid_a, fid_b = fid_fields[0], fid_fields[1]
@@ -320,7 +320,7 @@ def detect_overlaps(fc: str) -> list[dict]:
     ra ≥ T OR  rb ≥ T  →  CONTAINED  (โพลีกอนซ้อนทับกันมากกว่า T% แต่ไม่ถึงกับเหมือนกัน — อาจเป็นกรณีรวมแปลงหรือแยกแปลง)
     neither            →  PARTIAL    (มีการซ้อนทับกันบางส่วน)
 
-    PARTIAL — why check_key and compare_key are now "a"/"b" instead of None
+    PARTIAL — check_key และ compare_key เป็น "a"/"b"
     ─────────────────────────────────────────────────────────────────────────
     Returns
     ───────
@@ -490,7 +490,7 @@ def write_excel(gdb: str, records: list[dict]) -> None:
 
         # กรณีไม่มีข้อมูลทับซ้อนเลย
         if not records:
-            pd.DataFrame([{"Message": "No overlaps found in this GDB."}]).to_excel(
+            pd.DataFrame([{"Message": "ไม่พบการซ้อนทับใน GDB นี้."}]).to_excel(
                 writer, sheet_name="Results", index=False
             )
             log.info(f"  No overlaps — Excel written → {path}")
@@ -615,7 +615,7 @@ def main():
     gdbs = find_gdbs(ROOT_DIR)
 
     if not gdbs:
-        log.warning(f"No .gdb folders found under {ROOT_DIR}")
+        log.warning(f"ไม่พบ .gdb ภายในไดเรกทอรี {ROOT_DIR}")
         return
 
     for gdb in gdbs:
@@ -624,7 +624,7 @@ def main():
         fcs = find_fcs(gdb)
 
         if not fcs:
-            log.info("  No matching feature classes found.")
+            log.info("  ไม่พบฟีเจอร์คลาสที่ตั้งชื่อตรงตามรูปแบบ.")
 
         for fc in fcs:
             records: list[dict] = []
