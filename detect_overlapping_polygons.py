@@ -4,16 +4,17 @@ detect_overlapping_polygons.py
 จุดประสงค์: ตรวจจับโพลีกอนทับซ้อนกันรองรับหลายชั้นข้อมูล
 ส่งรายงานเป็น Excel หนึ่งไฟล์ต่อ GDB หนึ่งไฟล์ (สรุป + แผ่นงานต่อประเภท)
 ถ้า เปิด ADD_FEATURE_CLASS = True ก็จะเขียนฟีเจอรร์คลาสตำแหน่งที่ทับซ้อนกันลง GDB ผลลัพธ์ด้วย 
-
-- Version 1.1 (เพิ่มการตรวจสอบฟีเจอร์คลาสหลายแบบตามที่ผู้ใช้เลือก)
-- release date: 2026-04-20
+- Version 1.2.1 (เพิ่มการตรวจสอบชั้น NS3K)
+- release date: 2026-04-22
 - ผู้เขียน: Apirat Rattanapaiboon
 
 ==========================
 ขั้นตอนการทำงานหลัก
 
 1) สแกนโครงสร้างไดเร็กทอรีเพื่อหาไฟล์ data.gdb
-ตัวอย่างเก็บข้อมูลในโครงสร้างแบบนี้นะจ๊ะ
+สคริปต์นี้ ตั้งใจทำให้รันทีเดียวทุก GDB ที่อยู่ในซับไดเร็กทอรีของ ROOT_DIR ได้เลย 
+โดยไม่ต้องระบุชื่อ GDB ทีละไฟล์
+แต่ต้องเก็บข้อมูลในโครงสร้างแบบนี้นะจ๊ะ
 "10_กรุงเทพฯ
 |----GDB_10_1
     |----data.gdb"
@@ -34,20 +35,20 @@ detect_overlapping_polygons.py
 ทั้งนี้เป็นการตรวจรูปร่างโพลีกอนเท่านั้น ไม่ได้ตรวจข้อมูลแอตทริบิวต์อื่น ๆ เช่น ระวาง แผ่น เลขที่ดิน มาตราส่วน ฯลฯ
 ซึ่งจะกำหนดการซ้อนทับกันเป็น 3 ประเภทหลัก ๆ ตามอัตราส่วนพื้นที่ซ้อนทับ (overlap ratio) ดังนี้
 ─────────────
-  DUPLICATE  เป็นแปลงที่ซ้อนกัน เกือบทั้งหมด โดยใช้ค่า CONTAINMENT_THRESHOLD เป็นตัวกำหนด
-                (ตั้งต้นให้ที่ ≥ 90% ของพื้นที่ซ้อนทับกันทั้งสองโพลีกอน แต่สามารถปรับได้ตามความเหมาะสม)
+  DUPLICATE เป็นแปลงที่ซ้อนกัน เกือบทั้งหมด โดยใช้ค่า CONTAINMENT_THRESHOLD เป็นตัวกำหนด
+            (ตั้งต้นให้ที่ ≥ 90% ของพื้นที่ซ้อนทับกันทั้งสองโพลีกอน แต่สามารถปรับได้ตามความเหมาะสม)
 
-  CONTAINED  ในกรณีที่ไม่ใช่ DUPLICATE แต่โพลีกอนหนึ่งซ้อนทับมากกว่า CONTAINMENT_THRESHOLD
-             ซึ่งเป็นลักษณะของโพลีกอนที่อยู่ข้างในอีกอันหนึ่งอย่างชัดเจน
-             (นั่นคือกรณี แปลงแบ่งแยก หรือ การรวมแปลง)
-             แต่เนื่องจากเป็นชั้นฟีเจอร์คลาสเดียวกัน อาจมีการเปลี่ยนแปลงข้อมูลระหว่างทำงาน
-             จึงไม่สามารถแยกได้ว่า เป็นกรณีรวมแปลง หรือ แยกแปลง 
-             เพราะไม่เชื่อมั่นใน Date Update หรือลำดับ OID ในการตัดสินใจ
-             จึงพิจารณาแค่ว่า โพลีกอนไหนมีอัตราส่วนการซ้อนทับมากกว่าเกณฑ์ที่กำหนด
-             (เช่น ถ้า A ซ้อนทับ B มากกว่าเกณฑ์ แต่ B ซ้อนทับ A ไม่ถึงเกณฑ์ ก็จะถือว่า A เป็น CHECK และ B เป็น COMPARE)
+  CONTAINED ในกรณีที่ไม่ใช่ DUPLICATE แต่โพลีกอนหนึ่งซ้อนทับมากกว่า CONTAINMENT_THRESHOLD
+            ซึ่งเป็นลักษณะของโพลีกอนที่อยู่ข้างในอีกอันหนึ่งอย่างชัดเจน
+            (นั่นคือกรณี แปลงแบ่งแยก หรือ การรวมแปลง)
+            แต่เนื่องจากเป็นชั้นฟีเจอร์คลาสเดียวกัน อาจมีการเปลี่ยนแปลงข้อมูลระหว่างทำงาน
+            จึงไม่สามารถแยกได้ว่า เป็นกรณีรวมแปลง หรือ แยกแปลง 
+            เพราะไม่เชื่อมั่นใน Date Update หรือลำดับ OID ในการตัดสินใจ
+            จึงพิจารณาแค่ว่า โพลีกอนไหนมีอัตราส่วนการซ้อนทับมากกว่าเกณฑ์ที่กำหนด
+            (เช่น ถ้า A ซ้อนทับ B มากกว่าเกณฑ์ แต่ B ซ้อนทับ A ไม่ถึงเกณฑ์ ก็จะถือว่า A เป็น CHECK และ B เป็น COMPARE)
 
-  PARTIAL    กลุ่มนี้คือโพลีกอนที่ซ้อนทับกันแบบเหลื่อมกันบางส่วน แต่ไม่เข้าเกณฑ์ DUPLICATE หรือ CONTAINED
-                โดยกำหนดว่าพื้นที่อย่างน้อยที่จะนับว่าทับซ้อนกันคือ MIN_OVERLAP_AREA (ค่าตั้งต้นคือ 0.1 ตารางเมตร)
+  PARTIAL   กลุ่มนี้คือโพลีกอนที่ซ้อนทับกันแบบเหลื่อมกันบางส่วน แต่ไม่เข้าเกณฑ์ DUPLICATE หรือ CONTAINED
+            โดยกำหนดว่าพื้นที่อย่างน้อยที่จะนับว่าทับซ้อนกันคือ MIN_OVERLAP_AREA (ค่าตั้งต้นคือ 0.1 ตารางเมตร)
 
 
 สิ่งที่ส่งออกในรายงาน Excel
@@ -59,6 +60,7 @@ detect_overlapping_polygons.py
     Sheet - PARTIAL     : สำหรับข้อมูลประเภท PARTIAL
 
 เมื่อรันแล้ว โปรดรอจนกว่าจะขึ้นคำว่า "All GDBs processed."
+
 """
 
 import os
@@ -90,23 +92,23 @@ ADD_FEATURE_CLASS = True
 
 # กำหนดเกณฑ์การพิจารณาว่าโพลีกอนหนึ่งถูกซ้อนทับอยู่ในอีกอันหนึ่งหรือไม่
 # 0.90 → 90 % ของพื้นที่
-# ปรับได้ตามความเหมาะสม ค่านี้จะส่งผลต่อการจำแนกประเภท DUPLICATE และ CONTAINED
 CONTAINMENT_THRESHOLD = 0.90
 
 # กำหนดว่า ถ้า เล็กกว่าจำนวนตารางเมตรนี้ จะไม่ถือว่าเป็นการทับซ้อนที่มีนัยสำคัญ
-# ปรับได้ตามความเหมาะสมของรูปแปลงส่วนใหญ่ หน่วยเป็น ตารางเมตร (sqm) นะจ๊ะ
 MIN_OVERLAP_AREA = 0.1
 
+# ──────────────────────────────────────────────────────────────────────────────
 # เลือกชั้นข้อมูลที่ต้องการตรวจสอบ (เปิดเป็น True / ปิดเป็น False)
+# ──────────────────────────────────────────────────────────────────────────────
 
-CHECK_PARCEL      = True   # PARCEL_47_xx หรือ PARCEL_48_xx
-CHECK_BLOCK_BLUE  = True   # BLOCK_BLUE_47 หรือ BLOCK_BLUE_48
-CHECK_BLOCK_FIX   = True   # BLOCK_FIX_47 หรือ BLOCK_FIX_48
+CHECK_PARCEL      = True    # PARCEL_47_xx หรือ PARCEL_48_xx
+CHECK_NS3K        = True    # PARCEL_47_NS3K_xx หรือ PARCEL_48_NS3K_xx
+CHECK_BLOCK_BLUE  = True    # BLOCK_BLUE_47 หรือ BLOCK_BLUE_48
+CHECK_BLOCK_FIX   = True    # BLOCK_FIX_47 หรือ BLOCK_FIX_48
 CHECK_BLOCK_PRICE = False   # BLOCK_PRICE_47 หรือ BLOCK_PRICE_48
 CHECK_MUNISAN     = False   # MUNISAN_47 หรือ MUNISAN_48
-CHECK_ROAD        = True   # ROAD_47 หรือ ROAD_48
+CHECK_ROAD        = True    # ROAD_47 หรือ ROAD_48
 CHECK_TAMBOL      = False   # TAMBOL_47 หรือ TAMBOL_48
-
 
 # ══════════════════════════════════════════════════════════════════════════════
 # หลังจากบรรทัดนี้ ถ้าไม่รู้ว่ามันคืออะไร ก็อย่าแก้ไขเลยนะจ๊ะ
@@ -116,8 +118,9 @@ CHECK_TAMBOL      = False   # TAMBOL_47 หรือ TAMBOL_48
 ACTIVE_PATTERNS = []
 
 if CHECK_PARCEL:
-    # PARCEL มีรหัสจังหวัดต่อท้าย (เช่น PARCEL_47_10)
     ACTIVE_PATTERNS.append(re.compile(r"^PARCEL_(47|48)_\d{2}$", re.IGNORECASE))
+if CHECK_NS3K:
+    ACTIVE_PATTERNS.append(re.compile(r"^PARCEL_(47|48)_NS3K_\d{2}$", re.IGNORECASE))
 if CHECK_BLOCK_BLUE:
     ACTIVE_PATTERNS.append(re.compile(r"^BLOCK_BLUE_(47|48)$", re.IGNORECASE))
 if CHECK_BLOCK_FIX:
@@ -131,10 +134,9 @@ if CHECK_ROAD:
 if CHECK_TAMBOL:
     ACTIVE_PATTERNS.append(re.compile(r"^TAMBOL_(47|48)$", re.IGNORECASE))
 
-# ป้องกันกรณีผู้ใช้ปิด False ทั้งหมด (เพราะถ้าปิดทั้งหมดก็ไม่รู้จะตรวจอะไร)
+# ป้องกันกรณีผู้ใช้ปิด False ทั้งหมด
 if not ACTIVE_PATTERNS:
     raise ValueError("กรุณาเปิดการตรวจสอบ (True) อย่างน้อย 1 ชั้นข้อมูลในส่วนตั้งค่า")
-
 
 # กำหนดชื่อเลเยอร์ชั่วคราวสำหรับการทำ Intersect
 _LYR_A = "_overlap_lyr_a"
@@ -163,7 +165,7 @@ _DATA_DICT = [
     {"Column Name": "CHECK_OID", "Description": "Object ID ของโพลีกอนหลักที่ใช้เป็นตัวตั้งในการตรวจสอบ"},
     {"Column Name": "COMPARE_OID", "Description": "Object ID ของโพลีกอนที่นำมาเปรียบเทียบว่าเกิดการทับซ้อน"},
     {"Column Name": "COMPARE_OIDS", "Description": "Object ID ของโพลีกอนทั้งหมดที่เข้ามาทับซ้อน (ใช้ในชีต PARTIAL กรณีโพลีกอนเหลื่อมกันหลายโพลีกอน)"},
-    {"Column Name": "OVERLAP_TYPE", "Description": "รูปแบบการทับซ้อน ได้แก่ DUPLICATE (ทับสนิท/ซ้ำซ้อน), CONTAINED (ชิ้นหนึ่งอยู่ภายในอีกชิ้น), PARTIAL (เหลื่อมกันบางส่วน)"},
+    {"Column Name": "OVERLAP_TYPE", "Description": "รูปแบบการทับซ้อน ได้แก่ DUPLICATE (ทับสนิท/ซ้ำซ้อน ตามอัตราส่วน), CONTAINED (โพลีกอนหนึ่งอยู่ภายในอีกโพลีกอน), PARTIAL (เหลื่อมกันบางส่วน)"},
     {"Column Name": "OVERLAP_COUNT", "Description": "จำนวนโพลีกอนที่เข้ามาทับซ้อนกับโพลีกอนหลัก"},
     {"Column Name": "REASON", "Description": "อธิบายเหตุผลและรายละเอียดการทับซ้อนที่ตรวจพบ"},
     {"Column Name": "GDB_FOLDER", "Description": "ชื่อโฟลเดอร์ File Geodatabase (GDB) ต้นทางที่เก็บข้อมูล"},
@@ -177,7 +179,7 @@ _DATA_DICT = [
     {"Column Name": "Overlap_Pct_Compare", "Description": "สัดส่วนร้อยละ (%) ของพื้นที่ทับซ้อน เทียบกับขนาดพื้นที่ของโพลีกอนเปรียบเทียบ"},
     {"Column Name": "Count_Pairs", "Description": "จำนวนคู่ของโพลีกอนที่พบการทับซ้อน (แสดงในชีต SUMMARY)"},
     {"Column Name": "PARTIAL_Unique_Polygons", "Description": "จำนวนโพลีกอนหลัก (ไม่นับซ้ำ) ที่เกิดการทับซ้อนแบบบางส่วน (แสดงในชีต SUMMARY)"}
-    ]
+]
 
 # ══════════════════════════════════════════════════════════════════════════════
 # กำหนดฟิลด์ใน GDB ผลลัพธ์
@@ -309,28 +311,11 @@ def detect_overlaps(fc: str) -> list[dict]:
         arcpy.Delete_management(temp)
 
     return pairs
+
 # ══════════════════════════════════════════════════════════════════════════════
 # ฟังก์ชันตรรกะการตรวจสอบการซ้อนทับประเภทต่าง ๆ
 # ══════════════════════════════════════════════════════════════════════════════
-    """
-    ตรรกะการตัดสินใจ
-    Classification rules  
-    ────────────────────
-    ra ≥ T AND rb ≥ T  →  DUPLICATE  (สองโพลีกอนซ้อนทับกันเกือบทั้งหมด /ตัดเปอร์เซ็นต์ตาม threshold/)
-    ra ≥ T OR  rb ≥ T  →  CONTAINED  (โพลีกอนซ้อนทับกันมากกว่า T% แต่ไม่ถึงกับเหมือนกัน — อาจเป็นกรณีรวมแปลงหรือแยกแปลง)
-    neither            →  PARTIAL    (มีการซ้อนทับกันบางส่วน)
 
-    PARTIAL — check_key และ compare_key เป็น "a"/"b"
-    ─────────────────────────────────────────────────────────────────────────
-    Returns
-    ───────
-    Dict with keys:
-      overlap_type  — "DUPLICATE" | "CONTAINED" | "PARTIAL"
-      check_key     — "a" or "b"  (never None)
-      compare_key   — "a" or "b"  (never None)
-      ra, rb        — computed overlap ratios (floats)
-      reason_tmpl   — format string for the REASON column
-    """
 def classify_pair(ov: float, area_a: float, area_b: float, threshold: float) -> dict:
     ra = ov / area_a if area_a else 0.0
     rb = ov / area_b if area_b else 0.0
@@ -342,7 +327,7 @@ def classify_pair(ov: float, area_a: float, area_b: float, threshold: float) -> 
             "compare_key":  "b",
             "ra": ra, "rb": rb,
             "reason_tmpl": (
-                "OID {CHECK_OID} กับ {COMPARE_OID} ซ้อนทับกัน"
+                "OID {CHECK_OID} กับ {COMPARE_OID} ซ้อนทับกัน "
                 "({pct_check:.1f}% กับ {pct_compare:.1f}%)"
             ),
         }
@@ -369,7 +354,7 @@ def classify_pair(ov: float, area_a: float, area_b: float, threshold: float) -> 
         "compare_key":  "b",   
         "ra": ra, "rb": rb,
         "reason_tmpl": (
-            "OID {CHECK_OID} และ {COMPARE_OID} ซ้อนทับกัน {overlap_area:.2f} ตารางเมตร"
+            "OID {CHECK_OID} และ {COMPARE_OID} ซ้อนทับกัน {overlap_area:.2f} ตารางเมตร "
             "({pct_a:.1f}% ของ {CHECK_OID} ทับกับ {pct_b:.1f}% ของ {COMPARE_OID})"
         ),
     }
